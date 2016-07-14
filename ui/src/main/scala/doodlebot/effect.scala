@@ -15,9 +15,13 @@ object Effect {
         ()
       case Request(path, payload, deserialize) =>
         dom.console.log(s"Sending $payload to $path")
-        val success = (data: js.Dictionary[String]) => {
-          dom.console.log(s"Ajax request succeeded $data")
-          DoodleBot.loop(deserialize(data))
+        val success = (data: js.Dictionary[js.Any]) => {
+          dom.console.log(s"Ajax request succeeded with $data")
+          val action =
+            data.get("error").map { errors =>
+              Action.Error(errors.asInstanceOf[js.Dictionary[js.Array[String]]]("errors").toList)
+            }.getOrElse { deserialize(data("success").asInstanceOf[js.Dictionary[String]]) }
+          DoodleBot.loop(action)
         }
         jquery.jQuery.post(path, payload, success, "json")
     }

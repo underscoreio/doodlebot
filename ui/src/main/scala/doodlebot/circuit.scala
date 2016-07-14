@@ -6,8 +6,11 @@ import org.scalajs.dom
 object Circuit {
   def act(action: Action, model: Model): (Model, Effect) =
     action match {
+      case Action.Error(m) =>
+        (model.flash(m), Effect.NoEffect)
+
       case Action.Logout =>
-        (NotAuthenticated, Effect.NoEffect)
+        (NotAuthenticated(), Effect.NoEffect)
 
       case Action.Signup(e, u, p) =>
         val payload = js.Dictionary("email" -> e, "userName" -> u, "password" -> p)
@@ -15,11 +18,11 @@ object Circuit {
           Action.Authenticated(data("userName"), data("credentials"))
         }
 
-        (NotAuthenticated, Effect.Request("/signup", payload, deserialize))
+        (NotAuthenticated(), Effect.Request("/signup", payload, deserialize))
 
       case Action.Login(u, p) =>
         dom.console.log(action.toString)
-        (model, Effect.NoEffect)
+        (NotAuthenticated(), Effect.NoEffect)
 
       case Action.Authenticated(u, c) =>
         (Authenticated(UserName(u), Credentials(c)), Effect.NoEffect)
@@ -29,7 +32,7 @@ object Circuit {
     import scalatags.JsDom.all._
 
     model match {
-      case NotAuthenticated =>
+      case NotAuthenticated(flash) =>
         div(
           h1("DoodleBot"),
 
@@ -52,9 +55,16 @@ object Circuit {
                   button(`type`:="submit",  "Login")
                 )
             )
-          )
+          ),
+
+          if(flash.isEmpty)
+            div()
+          else
+            div(`class`:="flash",
+                p(flash)
+            )
         ).render
-      case Authenticated(u, c) =>
+      case Authenticated(u, c, flash) =>
         div(
           h1("DoodleBot"),
           p(s"Hi $u. Your secret credentials are $c")

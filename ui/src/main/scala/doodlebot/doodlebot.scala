@@ -5,7 +5,7 @@ import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 
 object DoodleBot extends js.JSApp {
-  var model: Model = NotAuthenticated
+  var model: Model = NotAuthenticated()
 
   def main(): Unit = {
     val rendered = Circuit.render(model)
