@@ -33,7 +33,7 @@ lazy val server = project.
     }.taskValue,
 
     initialCommands in console := """
-      |import doodlebot.DoodleBot._
+      |doodlebot.DoodleBot.server
     """.trim.stripMargin,
 
     cleanupCommands in console := """
