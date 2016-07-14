@@ -5,23 +5,24 @@ import com.twitter.finagle.Http
 import io.finch._
 import io.circe.generic.auto._
 import io.finch.circe._
-import java.io.File
 
 object DoodleBot {
 
   final case class Authenticated(userName: String, credentials: String)
 
-  val indexFile: Reader = Reader.fromFile(new File("/Users/noel/dev/doodlebot/code/index.html"))
+  val resourceLoader = this.getClass()
 
   val index: Endpoint[Buf] = get("index") {
-    Ok(Reader.readAll(indexFile)).withContentType(Some("text/html"))
+    val stream = resourceLoader.getResourceAsStream("/index.html")
+    val reader = Reader.fromStream(stream)
+    Ok(Reader.readAll(reader)).withContentType(Some("text/html"))
   }
 
   val ui: Endpoint[Buf] = get("ui" / strings) { (tail: Seq[String]) =>
-    val path = tail.mkString("/")
-    val file = new File(s"/Users/noel/dev/doodlebot/code/ui/$path")
-    val reader = Reader.fromFile(file)
-
+    val path = tail.mkString("/","/","")
+    println(s"Loading resource $path")
+    val stream = resourceLoader.getResourceAsStream(path)
+    val reader = Reader.fromStream(stream)
     Ok(Reader.readAll(reader)).withContentType(Some("application/javascript"))
   }
 

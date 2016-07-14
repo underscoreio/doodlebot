@@ -24,6 +24,14 @@ lazy val server = project.
       "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
     ),
 
+    resourceGenerators in Compile += Def.task {
+      val code = (fastOptJS in Compile in ui).value.data
+      val sourceMap = code.getParentFile / (code.getName + ".map")
+      val launcher = (packageScalaJSLauncher in Compile in ui).value.data
+      val dependencies = (packageJSDependencies in Compile in ui).value
+      Seq(code, sourceMap, launcher, dependencies)
+    }.taskValue,
+
     initialCommands in console := """
       |import doodlebot.DoodleBot._
     """.trim.stripMargin,
