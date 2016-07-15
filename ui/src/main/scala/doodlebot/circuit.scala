@@ -37,16 +37,7 @@ object Circuit {
           h1("DoodleBot"),
 
           div(`class`:="forms",
-            div(`class`:="signup",
-                h2("Sign Up"),
-                form(onsubmit:=(DoodleBot.onSignUp _),
-                  input(`type`:="email", id:="signup-email", placeholder:="Your email address"),
-                  input(`type`:="text",  id:="signup-username", placeholder:="Your username"),
-                  input(`type`:="password", id:="signup-password", placeholder:="Your password"),
-                  button(`type`:="submit", "Sign up")
-                )
-            ),
-
+            view.Signup.render,
             div(`class`:="login",
                 h2("Login"),
                 form(onsubmit:=(DoodleBot.onLogin _),
