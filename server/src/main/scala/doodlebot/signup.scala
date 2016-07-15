@@ -2,17 +2,24 @@ package doodlebot
 
 import io.finch._
 import cats.data.Xor
+import cats.std.list._
+import cats.syntax.cartesian._
 import cats.syntax.xor._
 
 object Signup {
-  import Model._
+  import model._
 
-  val signup: Endpoint[Errors Xor Authenticated] =
-    post("signup" :: param("email") :: param("userName") :: param("password")) { (email: String, userName: String, password: String) =>
-      User.validate(userName, email, password).map{ user =>
-        Authenticated(userName, "credentials")
+  val signup: Endpoint[FormErrors Xor Authenticated] =
+    post("signup" :: param("userName") :: param("email") :: param("password")) { (userName: String, email: String, password: String) =>
+      import doodlebot.syntax.validation._
+
+      (UserName.validate(userName).forInput("signup-username") |@|
+         Email.validate(email).forInput("signup-email") |@|
+         Password.validate(password).forInput("signup-password")).map { (n, e, p) =>
+        val user = User(n, e, p)
+        Authenticated(n.get, "credentials")
       }.fold(
-        fe = errors => Ok(Errors(errors).left),
+        fe = errors => Ok(FormErrors(errors).left),
         fa = auth => Ok(auth.right).withContentType(Some("application/json"))
       )
   }

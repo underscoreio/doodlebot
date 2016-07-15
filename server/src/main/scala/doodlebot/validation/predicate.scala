@@ -1,27 +1,24 @@
 package doodlebot
+package validation
 
 import cats.data.{NonEmptyList,Validated,ValidatedNel}
 import cats.std.list._
 import cats.syntax.validated._
 import cats.syntax.semigroup._
 
-object Validation {
-  type Result[A] = ValidatedNel[String,A]
+final case class Predicate[A](messages: NonEmptyList[String], check: A => Boolean) {
+  def apply(a: A): ValidatedNel[String,A] =
+    if(check(a))
+      a.validNel
+    else
+      Validated.invalid(messages)
 
-  final case class Predicate[A](messages: NonEmptyList[String], check: A => Boolean) {
-    def apply(a: A): Result[A] =
-      if(check(a))
-        a.validNel
-      else
-        Validated.invalid(messages)
-
-    def and(that: Predicate[A]): Predicate[A] =
-      Predicate(this.messages |+| that.messages, (a: A) => this.check(a) && that.check(a))
-  }
-  object Predicate {
-    def lift[A](message: String)(f: A => Boolean): Predicate[A] =
-      Predicate(NonEmptyList(message), f)
-  }
+  def and(that: Predicate[A]): Predicate[A] =
+    Predicate(this.messages |+| that.messages, (a: A) => this.check(a) && that.check(a))
+}
+object Predicate {
+  def lift[A](message: String)(f: A => Boolean): Predicate[A] =
+    Predicate(NonEmptyList(message), f)
 
   def lengthAtLeast(length: Int): Predicate[String] =
     Predicate.lift(s"Must be at least $length characters."){ string =>
@@ -40,11 +37,4 @@ object Validation {
         accum && string.contains(elt)
       }
     }
-
-  object syntax {
-    implicit class ValidationOps[A](a: A) {
-      def validate(predicate: Predicate[A]): Result[A] =
-        predicate(a)
-    }
-  }
 }
