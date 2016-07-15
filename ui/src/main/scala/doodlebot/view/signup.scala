@@ -7,13 +7,13 @@ import org.scalajs.dom
 object Signup {
   import scalatags.JsDom.all._
 
-  def render: dom.Element =
-    div(`class`:="signup",
+  def render(signup: model.Signup): dom.Element =
+    div(id:="signup",
         h2("Sign Up"),
         form(onsubmit:=(DoodleBot.onSignUp _),
-             Input.email(name="signup-email", placeholder="Your email address"),
-             Input.text(name="signup-username", placeholder="Your username"),
-             Input.password(name="signup-password", placeholder="Your password"),
+             Input.email(name="email", placeholder="Your email address", value=signup.email),
+             Input.text(name="username", placeholder="Your username", value=signup.userName),
+             Input.password(name="password", placeholder="Your password", value=signup.password),
              button(`type`:="submit", "Sign up")
         )
     ).render

@@ -5,7 +5,9 @@ import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 
 object DoodleBot extends js.JSApp {
-  var model: Model = NotAuthenticated()
+  import doodlebot.model._
+
+  var model: Model = NotAuthenticated(Signup.empty)
 
   def main(): Unit = {
     val rendered = Circuit.render(model)
@@ -27,11 +29,11 @@ object DoodleBot extends js.JSApp {
 
   @JSExport
   def onSignUp(evt: dom.Event): Unit = {
-    val email = dom.document.getElementById("signup-email").asInstanceOf[dom.html.Input].value
-    val username = dom.document.getElementById("signup-username").asInstanceOf[dom.html.Input].value
-    val password = dom.document.getElementById("signup-password").asInstanceOf[dom.html.Input].value
-
     evt.preventDefault()
+
+    val email = dom.document.querySelector("#signup input[name=email]").asInstanceOf[dom.html.Input].value
+    val username = dom.document.querySelector("#signup input[name=username]").asInstanceOf[dom.html.Input].value
+    val password = dom.document.querySelector("#signup input[name=password]").asInstanceOf[dom.html.Input].value
 
     val action = Action.Signup(email, username, password)
     loop(action)
