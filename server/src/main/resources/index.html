@@ -23,7 +23,7 @@
     .forms {
       display: flex;
       flex-direction: row;
-      justify-content: center;
+      justify-content: space-around;
     }
 
     .forms h2 {
@@ -31,15 +31,15 @@
     }
 
     #signup, #login {
-      width: auto;
-      padding-left: 40px;
-      padding-right: 40px;
+      width: 512px;
+      padding-left: 60px;
+      padding-right: 60px;
     }
 
     input {
       display: block;
       margin-top: 10px;
-      min-width: 240px;
+      width: 100%;
       height: 34px;
       border: none;
       font-size: 14px;
@@ -60,12 +60,23 @@
       text-align: center;
       background-color: white;
     }
+
+    .help-block {
+      font-size: 12px;
+      padding-top: 6px 12px;
+    }
   </style>
 </head>
 <body>
 <div id="app">The app should be displayed here.</div>
 <script type="text/javascript" src="/ui/ui-fastopt.js"></script>
-<script type="text/javascript" src="/ui/ui-launcher.js"></script>
 <script type="text/javascript" src="/ui/ui-jsdeps.js"></script>
+<script type="text/javascript">
+  var h = require( "node_modules/virtual-dom/h.js" );
+  var diff = require( "node_modules/virtual-dom/diff.js" );
+  var patch = require( "node_modules/virtual-dom/patch.js" );
+  var createElement = require( "node_modules/virtual-dom/create-element.js" );
+</script>
+<script type="text/javascript" src="/ui/ui-launcher.js"></script>
 </body>
 </html>

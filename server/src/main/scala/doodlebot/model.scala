@@ -12,7 +12,7 @@ object model {
   // Messages
   final case class Authenticated(userName: String, credentials: String)
   final case class Errors(errors: NonEmptyList[String])
-  final case class FormErrors(errors: NonEmptyList[InputError])
+  final case class FormErrors(errors: InputError)
 
   // Wrappers
   final case class UserName(get: String) extends AnyVal

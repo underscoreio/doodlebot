@@ -2,27 +2,61 @@ package doodlebot
 package form
 
 import org.scalajs.dom
+import doodlebot.virtualDom._
+import doodlebot.virtualDom.Dom._
 
 object Input {
-  def email(name: String, placeholder: String = "", value: String = "", help: String = ""): dom.Element =
-    apply(name, "email", placeholder, value, help)
+  def email(
+    name: String,
+    placeholder: String = "",
+    value: String = "",
+    help: String = "",
+    onInput: (String) => Effect = (string) => Effect.NoEffect
+  ): VTree =
+    apply(name, "email", placeholder, value, help, onInput)
 
-  def text(name: String, placeholder: String = "", value: String = "", help: String = ""): dom.Element =
-    apply(name, "text", placeholder, value, help)
+  def text(
+    name: String,
+    placeholder: String = "",
+    value: String = "",
+    help: String = "",
+    onInput: (String) => Effect = (string) => Effect.NoEffect
+  ): VTree =
+    apply(name, "text", placeholder, value, help, onInput)
 
-  def password(name: String, placeholder: String = "", value: String = "", help: String = ""): dom.Element =
-    apply(name, "password", placeholder, value, help)
+  def password(
+    name: String,
+    placeholder: String = "",
+    value: String = "",
+    help: String = "",
+    onInput: (String) => Effect = (string) => Effect.NoEffect
+  ): VTree =
+    apply(name, "password", placeholder, value, help, onInput)
 
-  def apply(name: String, `type`: String, placeholder: String = "", value: String = "", help: String = ""): dom.Element = {
-    import scalatags.JsDom.short._
+  def apply(
+    name: String,
+    `type`: String,
+    placeholder: String = "",
+    value: String = "",
+    help: String = "",
+    onInput: (String) => Effect = (string) => Effect.NoEffect
+  ): VTree = {
+    val handler = eventHandler((event: dom.Event) =>
+        Effect.run(onInput(event.target.asInstanceOf[dom.raw.HTMLInputElement].value)))
 
-    div(*.`class`:="form-group")(
-      input(*.`type`:=`type`, *.name:=name, *.placeholder:=placeholder, *.value:=value),
+    element("div.form-group")(
+      input(
+        "type":=`type`,
+        "name":=name,
+        "placeholder":=placeholder,
+        "value":=value,
+        "oninput":=handler
+      )(),
       if(help.isEmpty)
         span()
       else
-        span(*.`class`:="help-block")(help)
-    ).render
+        element("span.help-block")(help)
+    )
   }
 
 }

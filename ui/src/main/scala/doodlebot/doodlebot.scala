@@ -3,40 +3,34 @@ package doodlebot
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
+import doodlebot.virtualDom._
 
 object DoodleBot extends js.JSApp {
   import doodlebot.model._
+  import doodlebot.message._
 
-  var model: Model = NotAuthenticated(Signup.empty)
+  var model: Model = Model.NotAuthenticated(Model.Signup.empty)
+  var current: VTree = null
+  var rendered: dom.Element = null
 
   def main(): Unit = {
-    val rendered = Circuit.render(model)
-    this.render(rendered)
-  }
-
-  def loop(action: Action): Unit = {
-    val (newModel, effect) = Circuit.act(action, model)
-    model = newModel
-    this.render(Circuit.render(newModel))
-    Effect.run(effect)
-  }
-
-  def render(content: dom.Element): Unit = {
+    current = Circuit.render(model)
+    rendered = VirtualDom.createElement(current)
     val root = dom.document.getElementById("app")
     root.removeChild(root.firstChild)
-    root.appendChild(content)
+    root.appendChild(rendered)
   }
 
-  @JSExport
-  def onSignUp(evt: dom.Event): Unit = {
-    evt.preventDefault()
+  def loop(message: Message): Unit = {
+    val newModel = Circuit.update(message, model)
+    model = newModel
+    this.render(Circuit.render(newModel))
+  }
 
-    val email = dom.document.querySelector("#signup input[name=email]").asInstanceOf[dom.html.Input].value
-    val username = dom.document.querySelector("#signup input[name=username]").asInstanceOf[dom.html.Input].value
-    val password = dom.document.querySelector("#signup input[name=password]").asInstanceOf[dom.html.Input].value
-
-    val action = Action.Signup(email, username, password)
-    loop(action)
+  def render(update: VTree): Unit = {
+    val patches = VirtualDom.diff(current, update)
+    rendered = VirtualDom.patch(rendered, patches)
+    current = update
   }
 
   @JSExport
@@ -46,7 +40,7 @@ object DoodleBot extends js.JSApp {
 
     evt.preventDefault()
 
-    val action = Action.Login(username, password)
-    loop(action)
+    val message = Message.NotAuthenticated
+    loop(message)
   }
 }

@@ -1,60 +1,56 @@
 package doodlebot
 
-import scala.scalajs.js
 import org.scalajs.dom
 
 object Circuit {
   import doodlebot.model._
+  import doodlebot.model.Model._
+  import doodlebot.message._
+  import doodlebot.virtualDom._
+  import doodlebot.virtualDom.Dom._
 
-  def act(action: Action, model: Model): (Model, Effect) =
-    action match {
-      case Action.Error(m) =>
-        (model, Effect.NoEffect)
+  def update(message: Message, model: Model): Model =
+    (message, model) match {
+      case (Message.NotAuthenticated, _) =>
+        NotAuthenticated(Signup.empty)
 
-      case Action.Logout =>
-        (NotAuthenticated(Signup.empty), Effect.NoEffect)
+      case (Message.Authenticated(u, c), _) =>
+        Authenticated(UserName(u), Credentials(c))
 
-      case Action.Signup(e, u, p) =>
-        val payload = js.Dictionary("email" -> e, "userName" -> u, "password" -> p)
-        val deserialize = (data: js.Dictionary[String]) => {
-          Action.Authenticated(data("userName"), data("credentials"))
-        }
+      case (Message.SignupError(errors), NotAuthenticated(signup)) =>
+        NotAuthenticated(signup.withErrors(errors))
 
-        (NotAuthenticated(Signup(u,e,p)), Effect.Request("/signup", payload, deserialize))
+      case (Message.Signup(signup), NotAuthenticated(_)) =>
+        NotAuthenticated(signup)
 
-      case Action.Login(u, p) =>
-        dom.console.log(action.toString)
-        (NotAuthenticated(Signup.empty), Effect.NoEffect)
-
-      case Action.Authenticated(u, c) =>
-        (Authenticated(UserName(u), Credentials(c)), Effect.NoEffect)
+      case (_, _) =>
+        dom.console.log("Unexpected message and model combination")
+        model
     }
 
-  def render(model: Model): dom.Element = {
-    import scalatags.JsDom.all._
-
+  def render(model: Model): VTree = {
     model match {
       case NotAuthenticated(signup) =>
         div(
           h1("DoodleBot"),
 
-          div(`class`:="forms",
+          element("div.forms")(
             view.Signup.render(signup),
-            div(id:="login",
+            element("div#login")(
                 h2("Login"),
-                form(onsubmit:=(DoodleBot.onLogin _),
-                  input(`type`:="text",  id:="login-username", placeholder:="Your username"),
-                  input(`type`:="password", id:="login-password", placeholder:="Your password"),
-                  button(`type`:="submit",  "Login")
+                form("onsubmit":=(DoodleBot.onLogin _))(
+                  input("type":="text", "id":="login-username", "placeholder":="Your username")(),
+                  input("type":="password", "id":="login-password", "placeholder":="Your password")(),
+                  button("type":="submit")("Login")
                 )
             )
           )
-        ).render
+        )
       case Authenticated(u, c) =>
         div(
           h1("DoodleBot"),
           p(s"Hi $u. Your secret credentials are $c")
-        ).render
+        )
     }
   }
 }

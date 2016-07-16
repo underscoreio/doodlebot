@@ -50,7 +50,10 @@ lazy val ui = project.
       "com.lihaoyi" %%% "scalatags" % "0.5.5",
       "be.doeraene" %%% "scalajs-jquery" % "0.9.0"
     ),
-    jsDependencies += "org.webjars" % "jquery" % "2.1.3" / "2.1.3/jquery.js",
+    jsDependencies ++= Seq(
+      "org.webjars" % "jquery" % "2.1.3" / "2.1.3/jquery.js",
+      ProvidedJS / "virtual-dom.js"
+    ),
     persistLauncher := true,
     skip in packageJSDependencies := false
   )
