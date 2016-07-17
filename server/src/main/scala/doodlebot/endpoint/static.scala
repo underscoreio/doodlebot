@@ -1,4 +1,5 @@
 package doodlebot
+package endpoint
 
 import com.twitter.io.{Reader, Buf}
 import io.finch._

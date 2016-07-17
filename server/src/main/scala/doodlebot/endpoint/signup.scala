@@ -1,4 +1,5 @@
 package doodlebot
+package endpoint
 
 import io.finch._
 import cats.data.Xor
@@ -21,18 +22,5 @@ object Signup {
         fe = errors => Ok(FormErrors(errors).left),
         fa = auth => Ok(auth.right).withContentType(Some("application/json"))
       )
-  }
-
-  object command {
-    import scala.collection.mutable
-
-    sealed abstract class SignupError extends Product with Serializable
-    final case class UserAlreadyExists(userName: UserName) extends SignupError
-
-    val signups: mutable.Map[UserName, User] = mutable.Map.empty
-
-    def signup(user: User): Xor[SignupError, User] = {
-      ???
-    }
   }
 }
