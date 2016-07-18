@@ -1,12 +1,21 @@
 package doodlebot
 package message
 
+import scala.scalajs.js
+
 sealed abstract class Message extends Product with Serializable
 object Message {
   // Messages that indicate the view should change
   sealed abstract class View extends Message
   final case object NotAuthenticated extends View
   final case class Authenticated(name: String, session: String) extends View
+  object Authenticated {
+    def deserialize(data: js.Dictionary[String]): Authenticated =
+      Authenticated(
+        data("name").asInstanceOf[String],
+        data("session").asInstanceOf[String]
+      )
+  }
 
   // Messages that indicate an error has occurred
   sealed abstract class Error extends Message

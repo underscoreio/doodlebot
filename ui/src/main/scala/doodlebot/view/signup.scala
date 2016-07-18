@@ -32,9 +32,7 @@ object Signup {
     val p = dom.document.querySelector(password.selector).asInstanceOf[dom.html.Input].value
 
     val payload = js.Dictionary("email" -> e, "name" -> u, "password" -> p)
-    val success = (data: js.Dictionary[String]) => {
-      Message.Authenticated(data("name"), data("session"))
-    }
+    val success = Message.Authenticated.deserialize _
     val failure =
       (errors: Map[String, List[String]]) => Message.SignupError(errors)
 
