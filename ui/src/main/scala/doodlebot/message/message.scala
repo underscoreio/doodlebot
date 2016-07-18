@@ -6,7 +6,7 @@ object Message {
   // Messages that indicate the view should change
   sealed abstract class View extends Message
   final case object NotAuthenticated extends View
-  final case class Authenticated(userName: String, credentials: String) extends View
+  final case class Authenticated(name: String, credentials: String) extends View
 
   // Messages that indicate an error has occurred
   sealed abstract class Error extends Message

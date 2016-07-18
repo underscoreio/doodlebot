@@ -35,7 +35,7 @@ object DoodleBot extends js.JSApp {
 
   @JSExport
   def onLogin(evt: dom.Event): Unit = {
-    val username = dom.document.getElementById("login-username").asInstanceOf[dom.html.Input].value
+    val name = dom.document.getElementById("login-name").asInstanceOf[dom.html.Input].value
     val password = dom.document.getElementById("login-password").asInstanceOf[dom.html.Input].value
 
     evt.preventDefault()

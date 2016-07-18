@@ -15,8 +15,8 @@ object Signup {
     val name = "email"
     val selector = s"#signup input[name=$name]"
   }
-  object username {
-    val name = "username"
+  object name {
+    val name = "name"
     val selector = s"#signup input[name=$name]"
   }
   object password {
@@ -28,12 +28,12 @@ object Signup {
     event.preventDefault()
 
     val e = dom.document.querySelector(email.selector).asInstanceOf[dom.html.Input].value
-    val u = dom.document.querySelector(username.selector).asInstanceOf[dom.html.Input].value
+    val u = dom.document.querySelector(name.selector).asInstanceOf[dom.html.Input].value
     val p = dom.document.querySelector(password.selector).asInstanceOf[dom.html.Input].value
 
-    val payload = js.Dictionary("email" -> e, "userName" -> u, "password" -> p)
+    val payload = js.Dictionary("email" -> e, "name" -> u, "password" -> p)
     val success = (data: js.Dictionary[String]) => {
-      Message.Authenticated(data("userName"), data("credentials"))
+      Message.Authenticated(data("name"), data("credentials"))
     }
     val failure =
       (errors: Map[String, List[String]]) => Message.SignupError(errors)
@@ -55,11 +55,11 @@ object Signup {
                onInput=(e) => Effect.Message(Message.Signup(signup.copy(email=e)))
              ),
              Input.text(
-               name=username.name,
-               placeholder="Your username",
-               value=signup.userName,
-               help=signup.errors.get(username.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(u) => Effect.Message(Message.Signup(signup.copy(userName=u)))
+               name=name.name,
+               placeholder="Your name",
+               value=signup.name,
+               help=signup.errors.get(name.name).map(_.mkString(" ")).getOrElse(""),
+               onInput=(u) => Effect.Message(Message.Signup(signup.copy(name=u)))
              ),
              Input.password(
                name=password.name,

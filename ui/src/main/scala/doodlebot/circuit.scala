@@ -15,7 +15,7 @@ object Circuit {
         NotAuthenticated(Signup.empty)
 
       case (Message.Authenticated(u, c), _) =>
-        Authenticated(UserName(u), Credentials(c))
+        Authenticated(Name(u), Credentials(c))
 
       case (Message.SignupError(errors), NotAuthenticated(signup)) =>
         NotAuthenticated(signup.withErrors(errors))
@@ -39,7 +39,7 @@ object Circuit {
             element("div#login")(
                 h2("Login"),
                 form("onsubmit":=(DoodleBot.onLogin _))(
-                  input("type":="text", "id":="login-username", "placeholder":="Your username")(),
+                  input("type":="text", "id":="login-name", "placeholder":="Your name")(),
                   input("type":="password", "id":="login-password", "placeholder":="Your password")(),
                   button("type":="submit")("Login")
                 )
