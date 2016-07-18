@@ -12,16 +12,22 @@ object Circuit {
   def update(message: Message, model: Model): Model =
     (message, model) match {
       case (Message.NotAuthenticated, _) =>
-        NotAuthenticated(Signup.empty)
+        NotAuthenticated(Signup.empty, Login.empty)
 
       case (Message.Authenticated(u, c), _) =>
         Authenticated(Name(u), Credentials(c))
 
-      case (Message.SignupError(errors), NotAuthenticated(signup)) =>
-        NotAuthenticated(signup.withErrors(errors))
+      case (Message.SignupError(errors), NotAuthenticated(signup, login)) =>
+        NotAuthenticated(signup.withErrors(errors), login)
 
-      case (Message.Signup(signup), NotAuthenticated(_)) =>
-        NotAuthenticated(signup)
+      case (Message.LoginError(errors), NotAuthenticated(signup, login)) =>
+        NotAuthenticated(signup, login.withErrors(errors))
+
+      case (Message.Signup(signup), NotAuthenticated(_, login)) =>
+        NotAuthenticated(signup, login)
+
+      case (Message.Login(login), NotAuthenticated(signup, _)) =>
+        NotAuthenticated(signup, login)
 
       case (_, _) =>
         dom.console.log("Unexpected message and model combination")
@@ -30,20 +36,13 @@ object Circuit {
 
   def render(model: Model): VTree = {
     model match {
-      case NotAuthenticated(signup) =>
+      case NotAuthenticated(signup, login) =>
         div(
           h1("DoodleBot"),
 
           element("div.forms")(
             view.Signup.render(signup),
-            element("div#login")(
-                h2("Login"),
-                form("onsubmit":=(DoodleBot.onLogin _))(
-                  input("type":="text", "id":="login-name", "placeholder":="Your name")(),
-                  input("type":="password", "id":="login-password", "placeholder":="Your password")(),
-                  button("type":="submit")("Login")
-                )
-            )
+            view.Login.render(login)
           )
         )
       case Authenticated(u, c) =>

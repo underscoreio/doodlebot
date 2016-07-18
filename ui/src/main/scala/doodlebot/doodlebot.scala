@@ -9,7 +9,7 @@ object DoodleBot extends js.JSApp {
   import doodlebot.model._
   import doodlebot.message._
 
-  var model: Model = Model.NotAuthenticated(Model.Signup.empty)
+  var model: Model = Model.NotAuthenticated(Model.Signup.empty, Model.Login.empty)
   var current: VTree = null
   var rendered: dom.Element = null
 

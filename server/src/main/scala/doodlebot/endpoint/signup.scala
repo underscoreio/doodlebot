@@ -40,8 +40,8 @@ object Signup {
 
               FormErrors(errs).left
             },
-            fa = user => {
-              Authenticated(user.name.get, "credentials").right
+            fa = session => {
+              Authenticated(name, session.get.toString).right
             }
           )
         }

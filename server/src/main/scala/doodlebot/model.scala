@@ -3,6 +3,7 @@ package doodlebot
 import cats.data.{NonEmptyList,ValidatedNel}
 import cats.std.list._
 import cats.syntax.cartesian._
+import java.util.UUID
 
 object model {
   import doodlebot.validation._
@@ -13,6 +14,9 @@ object model {
   final case class Authenticated(name: String, credentials: String)
   final case class Errors(errors: NonEmptyList[String])
   final case class FormErrors(errors: InputError)
+
+  // Messages from the client
+  final case class Login(name: Name, password: Password)
 
   // Wrappers
   final case class Name(get: String) extends AnyVal
@@ -33,6 +37,7 @@ object model {
       password.validate(lengthAtLeast(8)).map(p => Password(p))
     }
   }
+  final case class Session(get: UUID = UUID.randomUUID()) extends AnyVal
 
   // State
   final case class User(name: Name, email: Email, password: Password)
