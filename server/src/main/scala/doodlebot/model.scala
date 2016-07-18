@@ -1,6 +1,6 @@
 package doodlebot
 
-import cats.data.{NonEmptyList,ValidatedNel}
+import cats.data.ValidatedNel
 import cats.std.list._
 import cats.syntax.cartesian._
 import java.util.UUID
@@ -12,7 +12,8 @@ object model {
 
   // Messages to the client
   final case class Authenticated(name: String, session: String)
-  final case class Errors(errors: NonEmptyList[String])
+  final case class Log(offset: Int, messages: List[Message])
+  final case class Message(author: String, message: String)
   final case class FormErrors(errors: InputError)
 
   // Messages from the client
@@ -46,6 +47,4 @@ object model {
       (Name.validate(name) |@| Email.validate(email) |@| Password.validate(password)).map { User.apply _ }
     }
   }
-
-  final case class Message(author: Name, message: String)
 }

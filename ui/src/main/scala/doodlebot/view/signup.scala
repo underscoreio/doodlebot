@@ -50,21 +50,21 @@ object Signup {
                placeholder="Your email address",
                value=signup.email,
                help=signup.errors.get(email.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(e) => Effect.Message(Message.Signup(signup.copy(email=e)))
+               onInput=(e) => Effect.message(Message.Signup(signup.copy(email=e)))
              ),
              Input.text(
                name=name.name,
                placeholder="Your name",
                value=signup.name,
                help=signup.errors.get(name.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(u) => Effect.Message(Message.Signup(signup.copy(name=u)))
+               onInput=(u) => Effect.message(Message.Signup(signup.copy(name=u)))
              ),
              Input.password(
                name=password.name,
                placeholder="Your password",
                value=signup.password,
                help=signup.errors.get(password.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(p) => Effect.Message(Message.Signup(signup.copy(password=p)))
+               onInput=(p) => Effect.message(Message.Signup(signup.copy(password=p)))
              ),
              button("type":="submit")("Sign up")
         )

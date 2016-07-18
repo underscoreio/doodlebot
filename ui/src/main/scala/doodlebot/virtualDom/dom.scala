@@ -64,4 +64,5 @@ object Dom {
   val p = Element("p")
   val input = Element("input")
   val button = Element("button")
+  val br = VirtualDom.h("br", js.Array[VTree]())
 }

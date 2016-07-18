@@ -11,7 +11,7 @@ object Input {
     placeholder: String = "",
     value: String = "",
     help: String = "",
-    onInput: (String) => Effect = (string) => Effect.NoEffect
+    onInput: (String) => Effect = (string) => Effect.noEffect
   ): VTree =
     apply(name, "email", placeholder, value, help, onInput)
 
@@ -20,7 +20,7 @@ object Input {
     placeholder: String = "",
     value: String = "",
     help: String = "",
-    onInput: (String) => Effect = (string) => Effect.NoEffect
+    onInput: (String) => Effect = (string) => Effect.noEffect
   ): VTree =
     apply(name, "text", placeholder, value, help, onInput)
 
@@ -29,7 +29,7 @@ object Input {
     placeholder: String = "",
     value: String = "",
     help: String = "",
-    onInput: (String) => Effect = (string) => Effect.NoEffect
+    onInput: (String) => Effect = (string) => Effect.noEffect
   ): VTree =
     apply(name, "password", placeholder, value, help, onInput)
 
@@ -39,7 +39,7 @@ object Input {
     placeholder: String = "",
     value: String = "",
     help: String = "",
-    onInput: (String) => Effect = (string) => Effect.NoEffect
+    onInput: (String) => Effect = (string) => Effect.noEffect
   ): VTree = {
     val handler = eventHandler((event: dom.Event) =>
         Effect.run(onInput(event.target.asInstanceOf[dom.raw.HTMLInputElement].value)))

@@ -15,7 +15,9 @@ object Circuit {
         NotAuthenticated(Signup.empty, Login.empty)
 
       case (Message.Authenticated(u, c), _) =>
-        Authenticated(u, c, Chat.empty)
+        val (model, effect) = view.Chat.init
+        Effect.run(effect)
+        Authenticated(u, c, model)
 
       case (Message.SignupError(errors), NotAuthenticated(signup, login)) =>
         NotAuthenticated(signup.withErrors(errors), login)
@@ -29,8 +31,10 @@ object Circuit {
       case (Message.Login(login), NotAuthenticated(signup, _)) =>
         NotAuthenticated(signup, login)
 
-      case (Message.Chat(chat), Authenticated(name, session, _)) =>
-        Authenticated(name, session, chat)
+      case (Message.Chat(msg), Authenticated(name, session, chat)) =>
+        val (model, effect) = view.Chat.update(chat, msg)
+        Effect.run(effect)
+        Authenticated(name, session, model)
 
       case (_, _) =>
         dom.console.log("Unexpected message and model combination")
@@ -51,7 +55,7 @@ object Circuit {
       case Authenticated(n, s, c) =>
         div(
           h1("DoodleBot"),
-          view.Chat.render(n, s, c)
+          view.Chat.render(c)
         )
     }
   }

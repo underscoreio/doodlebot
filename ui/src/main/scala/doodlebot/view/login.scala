@@ -45,14 +45,14 @@ object Login {
                placeholder="Your name",
                value=login.name,
                help=login.errors.get(name.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(n) => Effect.Message(Message.Login(login.copy(name=n)))
+               onInput=(n) => Effect.message(Message.Login(login.copy(name=n)))
              ),
              Input.password(
                name=password.name,
                placeholder="Your password",
                value=login.password,
                help=login.errors.get(password.name).map(_.mkString(" ")).getOrElse(""),
-               onInput=(p) => Effect.Message(Message.Login(login.copy(password=p)))
+               onInput=(p) => Effect.message(Message.Login(login.copy(password=p)))
              ),
              button("type":="submit")("Login")
         )
