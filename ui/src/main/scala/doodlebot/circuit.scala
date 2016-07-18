@@ -29,6 +29,9 @@ object Circuit {
       case (Message.Login(login), NotAuthenticated(signup, _)) =>
         NotAuthenticated(signup, login)
 
+      case (Message.Chat(chat), Authenticated(name, session, _)) =>
+        Authenticated(name, session, chat)
+
       case (_, _) =>
         dom.console.log("Unexpected message and model combination")
         model

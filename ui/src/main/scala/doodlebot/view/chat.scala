@@ -11,24 +11,25 @@ object Chat {
   import doodlebot.virtualDom._
   import doodlebot.virtualDom.Dom._
 
-  object chat {
-    val name = "chat"
-    val selector = s"#main input[name=$name]"
+  object message {
+    val name = "message"
+    val selector = s"#chat input[name=$name]"
   }
 
-  def onChat(event: dom.Event): Unit = {
+  def onMessage(event: dom.Event): Unit = {
+    dom.console.log("onMessage")
     event.preventDefault()
 
-    val p = dom.document.querySelector(chat.selector).asInstanceOf[dom.html.Input].value
+    val m = dom.document.querySelector(message.selector).asInstanceOf[dom.html.Input].value
 
-    val payload = js.Dictionary("chat" -> p)
+    val payload = js.Dictionary("message" -> m)
     val success = (data: js.Dictionary[String]) => {
       Message.Authenticated(data("name"), data("session"))
     }
     val failure =
       (errors: Map[String, List[String]]) => Message.ChatError(errors)
 
-    val effect = Effect.Request("/chat", payload, success, failure)
+    val effect = Effect.Request("/message", payload, success, failure)
     Effect.run(effect)
   }
 
@@ -38,13 +39,13 @@ object Chat {
         div(
           chat.messages.map(msg => p(msg)):_*
         ),
-        form("onsubmit":=eventHandler(onChat _))(
+        form("onsubmit":=eventHandler(onMessage _))(
           span(name),
           Input.text(
-            name=Chat.chat.name,
+            name=message.name,
             placeholder="Say something",
-            value=chat.chat,
-            onInput=(c) => Effect.Message(Message.Chat(chat.copy(chat=c)))
+            value=chat.message,
+            onInput=(m) => Effect.Message(Message.Chat(chat.copy(message=m)))
           )
         )
     )

@@ -41,7 +41,7 @@ object Signup {
               FormErrors(errs).left
             },
             fa = session => {
-              Authenticated(name, session.get).right
+              Authenticated(name, session.get.toString).right
             }
           )
         }

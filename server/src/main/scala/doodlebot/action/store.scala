@@ -123,7 +123,7 @@ object Store {
       }
     }
 
-  def say(message: Message): Unit =
+  def message(message: Message): Unit =
     Store.synchronized {
       messages(messagesHead) = message
       messagesHead = messagesHead + 1

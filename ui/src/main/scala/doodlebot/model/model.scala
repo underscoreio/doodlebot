@@ -22,7 +22,7 @@ object Model {
     val empty = Login("","")
   }
 
-  final case class Chat(messages: List[String], chat: String)
+  final case class Chat(messages: List[String], message: String)
   object Chat {
     val empty = Chat(List.empty, "")
   }

@@ -9,7 +9,7 @@ import io.finch.circe._
 object DoodleBot {
   import doodlebot.endpoint._
 
-  val service = Static.static :+: Signup.signup :+: Login.login
+  val service = Static.static :+: Signup.signup :+: Login.login :+: Chat.message
 
   implicit def xorEncoder[A: Encoder,B: Encoder]: Encoder[Xor[A,B]] =
     Encoder.encodeXor("error", "success")
