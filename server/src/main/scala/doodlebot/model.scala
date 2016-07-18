@@ -46,4 +46,6 @@ object model {
       (Name.validate(name) |@| Email.validate(email) |@| Password.validate(password)).map { User.apply _ }
     }
   }
+
+  final case class Message(author: Name, message: String)
 }

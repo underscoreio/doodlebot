@@ -30,11 +30,15 @@ object Store {
   val passwordIncorrect: LoginError =
     PasswordIncorrect
 
+
   private var emails: mutable.Set[Email] = mutable.Set.empty
   private var names: mutable.Set[Name] = mutable.Set.empty
   private var accounts: mutable.Map[Name, User] = mutable.Map.empty
   private var sessionsBySession: mutable.Map[Session, Name] = mutable.Map.empty
   private var sessionsByName: mutable.Map[Name, Session] = mutable.Map.empty
+  private var messages: Array[Message] = Array.ofDim(1024)
+  private var messagesHead = 0
+  private var messageCounter = 0
 
   def signup(user: User): ValidatedNel[SignupError,Session] = {
     Store.synchronized {
@@ -80,4 +84,48 @@ object Store {
       }
     }
   }
+
+  def poll(offset: Int): List[Message] =
+    Store.synchronized {
+      if(offset > messageCounter)
+        List.empty
+      else {
+        val range =
+          if((messageCounter - offset) > 10)
+            10
+          else
+            (messageCounter - offset)
+
+        def collect(n: Int): List[Message] =
+          n match {
+            case 0 =>
+              val msg = messages(messagesHead)
+              if(msg == null)
+                Nil
+              else
+                List(msg)
+            case n =>
+              val idx = {
+                val i = messagesHead - n
+                if(i < 0)
+                  1024 + i
+                else
+                  i
+              }
+              val msg = messages(idx)
+              if(msg == null)
+                Nil
+              else
+                msg :: collect(n - 1)
+          }
+
+        collect(range)
+      }
+    }
+
+  def say(message: Message): Unit =
+    Store.synchronized {
+      messages(messagesHead) = message
+      messagesHead = messagesHead + 1
+    }
 }
