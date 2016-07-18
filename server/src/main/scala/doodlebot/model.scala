@@ -11,7 +11,7 @@ object model {
   import doodlebot.validation.Predicate._
 
   // Messages to the client
-  final case class Authenticated(name: String, credentials: String)
+  final case class Authenticated(name: String, session: String)
   final case class Errors(errors: NonEmptyList[String])
   final case class FormErrors(errors: InputError)
 

@@ -33,7 +33,7 @@ object Signup {
 
     val payload = js.Dictionary("email" -> e, "name" -> u, "password" -> p)
     val success = (data: js.Dictionary[String]) => {
-      Message.Authenticated(data("name"), data("credentials"))
+      Message.Authenticated(data("name"), data("session"))
     }
     val failure =
       (errors: Map[String, List[String]]) => Message.SignupError(errors)

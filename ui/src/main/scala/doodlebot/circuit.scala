@@ -15,7 +15,7 @@ object Circuit {
         NotAuthenticated(Signup.empty, Login.empty)
 
       case (Message.Authenticated(u, c), _) =>
-        Authenticated(Name(u), Credentials(c))
+        Authenticated(u, c, Chat.empty)
 
       case (Message.SignupError(errors), NotAuthenticated(signup, login)) =>
         NotAuthenticated(signup.withErrors(errors), login)
@@ -45,10 +45,10 @@ object Circuit {
             view.Login.render(login)
           )
         )
-      case Authenticated(u, c) =>
+      case Authenticated(n, s, c) =>
         div(
           h1("DoodleBot"),
-          p(s"Hi $u. Your secret credentials are $c")
+          view.Chat.render(n, s, c)
         )
     }
   }

@@ -28,7 +28,7 @@ object Login {
 
     val payload = js.Dictionary("name" -> n, "password" -> p)
     val success = (data: js.Dictionary[String]) => {
-      Message.Authenticated(data("name"), data("credentials"))
+      Message.Authenticated(data("name"), data("session"))
     }
     val failure =
       (errors: Map[String, List[String]]) => Message.LoginError(errors)
