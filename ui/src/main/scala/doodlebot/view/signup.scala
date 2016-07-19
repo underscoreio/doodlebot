@@ -36,7 +36,7 @@ object Signup {
     val failure =
       (errors: Map[String, List[String]]) => Message.SignupError(errors)
 
-    val effect = Effect.Request("/signup", payload, success, failure)
+    val effect = Effect.request("/signup", payload, success, failure)
     Effect.run(effect)
   }
 

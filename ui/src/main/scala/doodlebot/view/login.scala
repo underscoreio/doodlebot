@@ -31,7 +31,7 @@ object Login {
     val failure =
       (errors: Map[String, List[String]]) => Message.LoginError(errors)
 
-    val effect = Effect.Request("/login", payload, success, failure)
+    val effect = Effect.request("/login", payload, success, failure)
     Effect.run(effect)
   }
 

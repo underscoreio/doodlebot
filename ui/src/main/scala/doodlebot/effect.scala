@@ -13,7 +13,8 @@ object Effect {
     path: String,
     payload: js.Dictionary[String],
     success: js.Dictionary[js.Any] => Msg,
-    failure: Map[String, List[String]] => Msg
+    failure: Map[String, List[String]] => Msg,
+    headers: List[(String, String)] = List.empty
   ) extends Effect
   final case class Tick(message: Msg) extends Effect
 
@@ -25,7 +26,8 @@ object Effect {
     path: String,
     payload: js.Dictionary[String],
     success: js.Dictionary[js.Any] => Msg,
-    failure: Map[String, List[String]] => Msg
+    failure: Map[String, List[String]] => Msg,
+    headers: List[(String, String)] = List.empty
   ) =
     Request(path, payload, success, failure)
   def tick(message: Msg): Effect =
@@ -39,7 +41,7 @@ object Effect {
       case Message(message) =>
         DoodleBot.loop(message)
 
-      case Request(path, payload, success, failure) =>
+      case Request(path, payload, success, failure, hdrs) =>
         dom.console.log("Sending", payload, " to ", path)
         val callback = (data: js.Dictionary[js.Any]) => {
           dom.console.log("Ajax request succeeded with", data)
@@ -52,9 +54,24 @@ object Effect {
             }.getOrElse { success(data("success").asInstanceOf[js.Dictionary[js.Any]]) }
           DoodleBot.loop(message)
         }
-        jquery.jQuery.post(path, payload, callback, "json")
+
+        val theHeaders: js.Dictionary[String] = js.Dictionary()
+        hdrs.foreach { hdr => theHeaders += hdr }
+
+        val settings: jquery.JQueryAjaxSettings =
+          js.Dynamic.literal (
+            headers = theHeaders,
+            method = "POST",
+            url = path,
+            data = payload,
+            success = (data: js.Any, textStatus: String, jqXHR: jquery.JQueryXHR) =>
+              callback(data.asInstanceOf[js.Dictionary[js.Any]])
+          ).asInstanceOf[jquery.JQueryAjaxSettings]
+
+        jquery.jQuery.ajax(settings)
 
       case Tick(message) =>
         dom.window.setInterval(() => DoodleBot.loop(message), 1000)
     }
+
 }

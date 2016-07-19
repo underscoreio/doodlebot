@@ -65,7 +65,7 @@ object Chat {
       case Poll =>
         (
           model,
-          Effect.Request(
+          Effect.request(
             "/poll",
             js.Dictionary("offset" -> model.log.offset.toString),
             (data) => GlobalMessage.Chat(LogMsg.deserialize(data)),
@@ -116,7 +116,7 @@ object Chat {
     val failure =
       (errors: Map[String, List[String]]) => GlobalMessage.Chat(Errors(errors))
 
-    val effect = Effect.Request("/message", payload, success, failure)
+    val effect = Effect.request("/message", payload, success, failure)
     Effect.run(effect)
   }
 }
