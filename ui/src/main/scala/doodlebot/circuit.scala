@@ -14,10 +14,10 @@ object Circuit {
       case (Message.NotAuthenticated, _) =>
         NotAuthenticated(Signup.empty, Login.empty)
 
-      case (Message.Authenticated(u, c), _) =>
-        val (model, effect) = view.Chat.init
+      case (Message.Authenticated(n, c), _) =>
+        val (model, effect) = view.Chat.init(n, c)
         Effect.run(effect)
-        Authenticated(u, c, model)
+        Authenticated(n, c, model)
 
       case (Message.SignupError(errors), NotAuthenticated(signup, login)) =>
         NotAuthenticated(signup.withErrors(errors), login)

@@ -10,7 +10,7 @@ object Chat {
   import doodlebot.virtualDom._
   import doodlebot.virtualDom.Dom._
 
-  final case class Model(log: Log, message: String)
+  final case class Model(name: String, password: String, log: Log, message: String)
   final case class Log(offset: Int, messages: List[Message])
   final case class Message(author: String, message: String)
   object Message {
@@ -37,8 +37,8 @@ object Chat {
   final case object Poll extends Msg
 
 
-  def init: (Model, Effect) = {
-    (Model(Log(0, List.empty), ""), Effect.tick(GlobalMessage.Chat(Poll)))
+  def init(name: String, password: String): (Model, Effect) = {
+    (Model(name, password, Log(0, List.empty), ""), Effect.tick(GlobalMessage.Chat(Poll)))
   }
 
 
@@ -69,7 +69,8 @@ object Chat {
             "/poll",
             js.Dictionary("offset" -> model.log.offset.toString),
             (data) => GlobalMessage.Chat(LogMsg.deserialize(data)),
-            (errors) => GlobalMessage.Chat(Errors.apply(errors))
+            (errors) => GlobalMessage.Chat(Errors.apply(errors)),
+            List(BasicAuth.header(model.name, model.password))
           )
         )
 
@@ -80,6 +81,29 @@ object Chat {
 
 
   def render(model: Model): VTree = {
+    def onSubmit(event: dom.Event): Unit = {
+      event.preventDefault()
+
+      val payload = js.Dictionary("name" -> model.name, "message" -> model.message)
+      val success = (data: js.Dictionary[js.Any]) => {
+        // Clear the message input now that we've sent it to the server
+        GlobalMessage.Chat(MessageMsg(""))
+      }
+      val failure =
+        (errors: Map[String, List[String]]) => GlobalMessage.Chat(Errors(errors))
+
+      val effect =
+        Effect.request(
+          "/message",
+          payload,
+          success,
+          failure,
+          List(BasicAuth.header(model.name, model.password))
+        )
+
+      Effect.run(effect)
+    }
+
     element("div#chat")(
         h2("Chat"),
         div(
@@ -87,7 +111,7 @@ object Chat {
             span(span(s"$author: "), span(message), br)
           }:_*
         ),
-        form("onsubmit":=eventHandler(onMessage _))(
+        form("onsubmit":=eventHandler(onSubmit _))(
           Input.text(
             name=messageInput.name,
             placeholder="Say something",
@@ -101,22 +125,5 @@ object Chat {
   object messageInput {
     val name = "message"
     val selector = s"#chat input[name=$name]"
-  }
-
-  def onMessage(event: dom.Event): Unit = {
-    event.preventDefault()
-
-    val m = dom.document.querySelector(messageInput.selector).asInstanceOf[dom.html.Input].value
-
-    val payload = js.Dictionary("message" -> m)
-    val success = (data: js.Dictionary[js.Any]) => {
-      // Clear the message input now that we've sent it to the server
-      GlobalMessage.Chat(MessageMsg(""))
-    }
-    val failure =
-      (errors: Map[String, List[String]]) => GlobalMessage.Chat(Errors(errors))
-
-    val effect = Effect.request("/message", payload, success, failure)
-    Effect.run(effect)
   }
 }

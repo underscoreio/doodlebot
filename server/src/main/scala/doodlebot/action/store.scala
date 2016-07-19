@@ -3,6 +3,7 @@ package action
 
 import cats.data.ValidatedNel
 import cats.std.list._
+import cats.std.option._
 import cats.syntax.validated._
 import cats.syntax.cartesian._
 
@@ -96,5 +97,12 @@ object Store {
   def message(message: Message): Unit =
     Store.synchronized {
       messages += message
+    }
+
+  def authenticated(name: Name, session: Session): Boolean =
+    Store.synchronized {
+      (sessionsBySession.get(session) |@| sessionsByName.get(name)).map { (n, s) =>
+        n == name && s == session
+      }.getOrElse(false)
     }
 }

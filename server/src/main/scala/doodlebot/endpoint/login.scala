@@ -34,6 +34,6 @@ object Login {
         }
       )
 
-    Ok(result).withContentType(Some("application/json"))
+    Ok(result)
   }
 }

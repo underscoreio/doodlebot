@@ -15,8 +15,8 @@ lazy val server = project.
     resolvers += Resolver.sonatypeRepo("snapshots"),
 
     libraryDependencies ++= Seq(
-      "com.github.finagle" %% "finch-core" % "0.10.0",
-      "com.github.finagle" %% "finch-circe" % "0.10.0",
+      "com.github.finagle" %% "finch-core" % "0.11.0-M2",
+      "com.github.finagle" %% "finch-circe" % "0.11.0-M2",
       "io.circe" %% "circe-core" % "0.4.1",
       "io.circe" %% "circe-generic" % "0.4.1",
       "io.circe" %% "circe-parser" % "0.4.1",

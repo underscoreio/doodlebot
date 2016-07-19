@@ -14,7 +14,7 @@ object Effect {
     payload: js.Dictionary[String],
     success: js.Dictionary[js.Any] => Msg,
     failure: Map[String, List[String]] => Msg,
-    headers: List[(String, String)] = List.empty
+    headers: List[(String, String)]
   ) extends Effect
   final case class Tick(message: Msg) extends Effect
 
@@ -29,7 +29,7 @@ object Effect {
     failure: Map[String, List[String]] => Msg,
     headers: List[(String, String)] = List.empty
   ) =
-    Request(path, payload, success, failure)
+    Request(path, payload, success, failure, headers)
   def tick(message: Msg): Effect =
     Tick(message)
 
@@ -42,7 +42,7 @@ object Effect {
         DoodleBot.loop(message)
 
       case Request(path, payload, success, failure, hdrs) =>
-        dom.console.log("Sending", payload, " to ", path)
+        dom.console.log("Sending", payload, " to ", path, " with headers", hdrs.toString)
         val callback = (data: js.Dictionary[js.Any]) => {
           dom.console.log("Ajax request succeeded with", data)
           val message =

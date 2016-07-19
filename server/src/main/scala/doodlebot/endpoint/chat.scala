@@ -4,21 +4,55 @@ package endpoint
 import cats.data.Xor
 import cats.syntax.xor._
 import io.finch._
+import com.twitter.util.Base64StringEncoder
 import doodlebot.action.Store
+import java.util.UUID
 
 object Chat {
   import doodlebot.model._
 
+  val authorized: Endpoint0 =
+    header("authorization") { header: String =>
+      val authorized =
+        header.split(" ", 2) match {
+          case Array(scheme, params) =>
+            if(scheme.toLowerCase == "basic") {
+              new String(Base64StringEncoder.decode(params)).split(":", 2) match {
+                case Array(name, session) =>
+                  try {
+                    val n = Name(name)
+                    val s = Session(UUID.fromString(session))
+                    Store.authenticated(n, s)
+                  } catch {
+                    case exn: IllegalArgumentException =>
+                      false
+                  }
+
+                case _ => false
+              }
+            } else {
+              false
+            }
+
+          case _ => false
+        }
+
+      if(authorized)
+        Ok(shapeless.HNil : shapeless.HNil)
+      else
+        NotAcceptable(BasicAuthFailed)
+    }
+
   val message: Endpoint[FormErrors Xor Unit] =
-    post("message" :: param("message")) { (message: String) =>
-      val msg = model.Message("foo", message)
+    post("message" :: authorized :: param("name") :: param("message")) { (name: String, message: String) =>
+      val msg = model.Message(name, message)
       Store.message(msg)
-      Ok(().right[FormErrors]).withContentType(Some("application/json"))
+      Ok(().right[FormErrors])
     }
 
   val poll: Endpoint[FormErrors Xor Log] =
-    post("poll" :: param("offset").as[Int]) { (offset: Int) =>
+    post("poll" :: authorized :: param("offset").as[Int]) { (offset: Int) =>
       val log = Store.poll(offset)
-      Ok(log.right[FormErrors]).withContentType(Some("application/json"))
+      Ok(log.right[FormErrors])
     }
 }

@@ -46,6 +46,6 @@ object Signup {
           )
         }
 
-      Ok(result).withContentType(Some("application/json"))
+      Ok(result)
     }
 }
