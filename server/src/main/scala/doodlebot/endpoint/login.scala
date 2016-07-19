@@ -12,7 +12,7 @@ import doodlebot.validation.InputError
 object Login {
   import doodlebot.model._
 
-  val login: Endpoint[FormErrors Xor Authenticated] = post("login" :: param("name") :: param("password")) { (name: String, password: String) =>
+  val login: Endpoint[Authenticated] = post("login" :: param("name") :: param("password")) { (name: String, password: String) =>
     val login = model.Login(Name(name), Password(password))
     val result: Xor[FormErrors,Authenticated] =
       Store.login(login).fold(
@@ -34,6 +34,6 @@ object Login {
         }
       )
 
-    Ok(result)
+    result.fold(BadRequest, Ok)
   }
 }

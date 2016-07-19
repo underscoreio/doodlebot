@@ -1,8 +1,6 @@
 package doodlebot
 package endpoint
 
-import cats.data.Xor
-import cats.syntax.xor._
 import io.finch._
 import com.twitter.util.Base64StringEncoder
 import doodlebot.action.Store
@@ -43,16 +41,14 @@ object Chat {
         NotAcceptable(BasicAuthFailed)
     }
 
-  val message: Endpoint[FormErrors Xor Unit] =
+  val message: Endpoint[Unit] =
     post("message" :: authorized :: param("name") :: param("message")) { (name: String, message: String) =>
       val msg = model.Message(name, message)
-      Store.message(msg)
-      Ok(().right[FormErrors])
+      Ok(Store.message(msg))
     }
 
-  val poll: Endpoint[FormErrors Xor Log] =
+  val poll: Endpoint[Log] =
     post("poll" :: authorized :: param("offset").as[Int]) { (offset: Int) =>
-      val log = Store.poll(offset)
-      Ok(log.right[FormErrors])
+      Ok(Store.poll(offset))
     }
 }

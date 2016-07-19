@@ -4,6 +4,7 @@ import doodlebot.message.{Message => Msg}
 import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.jquery
+import scala.scalajs.js.JSON
 
 sealed abstract class Effect extends Product with Serializable
 object Effect {
@@ -43,16 +44,19 @@ object Effect {
 
       case Request(path, payload, success, failure, hdrs) =>
         dom.console.log("Sending", payload, " to ", path, " with headers", hdrs.toString)
-        val callback = (data: js.Dictionary[js.Any]) => {
+
+        val callbackFailure = (data: js.Dictionary[js.Any]) => {
+          dom.console.log("Ajax request failed with", data)
+
+          val raw = data.asInstanceOf[js.Dictionary[js.Dictionary[js.Dictionary[js.Array[String]]]]]
+          val converted = raw("errors")("messages").toMap.mapValues(_.toList)
+
+          DoodleBot.loop(failure(converted))
+        }
+
+        val callbackSuccess = (data: js.Dictionary[js.Any]) => {
           dom.console.log("Ajax request succeeded with", data)
-          val message =
-            data.get("error").map { errors =>
-              val raw =
-                errors.asInstanceOf[js.Dictionary[js.Dictionary[js.Dictionary[js.Array[String]]]]]
-              val converted = raw("errors")("messages").toMap.mapValues(_.toList)
-              failure(converted)
-            }.getOrElse { success(data("success").asInstanceOf[js.Dictionary[js.Any]]) }
-          DoodleBot.loop(message)
+          DoodleBot.loop(success(data))
         }
 
         val theHeaders: js.Dictionary[String] = js.Dictionary()
@@ -64,8 +68,11 @@ object Effect {
             method = "POST",
             url = path,
             data = payload,
+            dataType = "json",
             success = (data: js.Any, textStatus: String, jqXHR: jquery.JQueryXHR) =>
-              callback(data.asInstanceOf[js.Dictionary[js.Any]])
+              callbackSuccess(data.asInstanceOf[js.Dictionary[js.Any]]) ,
+            error = (jqXHR: jquery.JQueryXHR, textStatus: String, errorThrow: String) =>
+              callbackFailure(JSON.parse(jqXHR.responseText).asInstanceOf[js.Dictionary[js.Any]])
           ).asInstanceOf[jquery.JQueryAjaxSettings]
 
         jquery.jQuery.ajax(settings)

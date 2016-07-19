@@ -13,7 +13,7 @@ import doodlebot.validation.InputError
 object Signup {
   import model._
 
-  val signup: Endpoint[FormErrors Xor Authenticated] =
+  val signup: Endpoint[Authenticated] =
     post("signup" :: param("name") :: param("email") :: param("password")) { (name: String, email: String, password: String) =>
       import doodlebot.syntax.validation._
 
@@ -46,6 +46,6 @@ object Signup {
           )
         }
 
-      Ok(result)
+      result.fold(BadRequest, Ok)
     }
 }
