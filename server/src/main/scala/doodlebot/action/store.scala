@@ -1,11 +1,12 @@
 package doodlebot
 package action
 
-import cats.data.ValidatedNel
+import cats.data.{NonEmptyList,ValidatedNel,Xor}
 import cats.std.list._
 import cats.std.option._
 import cats.syntax.validated._
 import cats.syntax.cartesian._
+import cats.syntax.xor._
 
 object Store {
   import doodlebot.model._
@@ -40,7 +41,7 @@ object Store {
   // This will gobble memory without limit, but is ok for our simple use case
   private var messages: mutable.ArrayBuffer[Message] = new mutable.ArrayBuffer(1024)
 
-  def signup(user: User): ValidatedNel[SignupError,Session] = {
+  def signup(user: User): Xor[NonEmptyList[SignupError],Session] = {
     Store.synchronized {
       val emailCheck: ValidatedNel[SignupError,Unit] =
         if(emails(user.email))
@@ -59,18 +60,19 @@ object Store {
         names += user.name
         accounts += (user.name -> user)
         makeSession(user.name)
-      }
+      }.toXor
     }
   }
 
-  def login(login: Login): ValidatedNel[LoginError,Session] = {
+  def login(login: Login): Xor[LoginError,Session] = {
     Store.synchronized {
-      accounts.get(login.name).fold(nameDoesNotExist(login.name).invalidNel[Session]){ user =>
-        if(user.password == login.password)
-          makeSession(login.name).validNel
-        else
-          passwordIncorrect.invalidNel
-      }
+      for {
+        user <- Xor.fromOption(accounts.get(login.name), nameDoesNotExist(login.name))
+        session <- if(user.password == login.password)
+                     makeSession(login.name).right
+                   else
+                     passwordIncorrect.left
+      } yield session
     }
   }
 

@@ -27,7 +27,7 @@ object Signup {
       val result: Xor[FormErrors,Authenticated] =
         validatedUser.flatMap { user =>
           Store.signup(user).fold(
-            fe = errors => {
+            fa = errors => {
               val errs =
                 errors.foldLeft(InputError.empty){ (accum, elt) =>
                   elt match {
@@ -40,7 +40,7 @@ object Signup {
 
               FormErrors(errs).left
             },
-            fa = session => {
+            fb = session => {
               Authenticated(name, session.get.toString).right
             }
           )

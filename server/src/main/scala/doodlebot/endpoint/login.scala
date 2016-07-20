@@ -3,8 +3,6 @@ package endpoint
 
 import io.finch._
 import cats.data.Xor
-import cats.std.list._
-import cats.syntax.semigroup._
 import cats.syntax.xor._
 import doodlebot.action.Store
 import doodlebot.validation.InputError
@@ -16,20 +14,18 @@ object Login {
     val login = model.Login(Name(name), Password(password))
     val result: Xor[FormErrors,Authenticated] =
       Store.login(login).fold(
-        fe = errors => {
-          val errs =
-            errors.foldLeft(InputError.empty){ (accum, elt) =>
-              elt match {
-                case Store.NameDoesNotExist(name) =>
-                  accum |+| InputError("name", "Nobody has signed up with this name")
-                case Store.PasswordIncorrect =>
-                  accum |+| InputError("password", "Your password is incorrect")
-              }
+        fa = error => {
+          FormErrors(
+            error match {
+              case Store.NameDoesNotExist(name) =>
+                InputError("name", "Nobody has signed up with this name")
+              case Store.PasswordIncorrect =>
+                InputError("password", "Your password is incorrect")
             }
-
-          FormErrors(errs).left
+          ).left
         },
-        fa = session => {
+
+        fb = session => {
           Authenticated(name, session.get.toString).right
         }
       )
