@@ -14,7 +14,7 @@ object model {
   final case class Authenticated(name: String, session: String)
   final case class Log(offset: Int, messages: List[Message])
   final case class Message(author: String, message: String)
-  final case class FormErrors(errors: InputError)
+  final case class FormErrors(errors: InputError) extends Exception
 
   // Messages from the client
   final case class Login(name: Name, password: Password)

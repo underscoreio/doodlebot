@@ -1,8 +1,8 @@
 package doodlebot
 package endpoint
 
-import com.twitter.io.Reader
 import io.finch._
+import com.twitter.io.Reader
 import com.twitter.finagle.http.Response
 
 object Static {
