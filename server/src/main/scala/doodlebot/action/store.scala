@@ -66,13 +66,7 @@ object Store {
 
   def login(login: Login): Xor[LoginError,Session] = {
     Store.synchronized {
-      for {
-        user <- Xor.fromOption(accounts.get(login.name), nameDoesNotExist(login.name))
-        session <- if(user.password == login.password)
-                     makeSession(login.name).right
-                   else
-                     passwordIncorrect.left
-      } yield session
+      nameDoesNotExist(login.name).left[Session]
     }
   }
 
